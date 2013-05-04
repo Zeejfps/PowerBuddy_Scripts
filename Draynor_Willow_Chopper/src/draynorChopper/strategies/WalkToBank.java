@@ -2,6 +2,7 @@ package draynorChopper.strategies;
 
 import org.powerbuddy.api.methods.Walking;
 
+import draynorChopper.conditions.TillInArea;
 import draynorChopper.enums.State;
 import draynorChopper.main.DraynorChopper;
 import draynorChopper.util.Strategy;
@@ -26,7 +27,7 @@ public class WalkToBank implements Strategy{
 			DraynorChopper.state = State.IN_BANK;
 		} else {
 			Walking.walkPath(DraynorChopper.PATH_TO_BANK);
-			DraynorChopper.sleep(2000, 2500); //Need to replace this badly!
+			DraynorChopper.sleep(new TillInArea(DraynorChopper.BANK_AREA), 5000); //Need to replace this badly!
 		}
 	}
 }

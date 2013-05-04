@@ -2,6 +2,7 @@ package draynorChopper.strategies;
 
 import org.powerbuddy.api.methods.Walking;
 
+import draynorChopper.conditions.TillInArea;
 import draynorChopper.enums.State;
 import draynorChopper.main.DraynorChopper;
 import draynorChopper.util.Strategy;
@@ -23,7 +24,7 @@ public class WalkToTrees implements Strategy{
 			DraynorChopper.state = State.NOT_CHOPPING;
 		} else {
 			Walking.walkPath(DraynorChopper.PATH_TO_TREES);
-			DraynorChopper.sleep(1000, 2000); //Need to replace this badly!
+			DraynorChopper.sleep(new TillInArea(DraynorChopper.TREE_AREA), 5000); 
 		}
 	}
 }

@@ -6,7 +6,6 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,9 +17,11 @@ import org.powerbuddy.api.methods.Camera;
 import org.powerbuddy.api.methods.GameObjects;
 import org.powerbuddy.api.methods.Players;
 import org.powerbuddy.api.methods.Skills;
+import org.powerbuddy.api.methods.Widgets;
 import org.powerbuddy.api.util.Random;
 import org.powerbuddy.api.util.Timer;
 import org.powerbuddy.api.wrapper.Area;
+import org.powerbuddy.api.wrapper.Component;
 import org.powerbuddy.api.wrapper.GameObject;
 import org.powerbuddy.api.wrapper.Player;
 import org.powerbuddy.api.wrapper.Tile;
@@ -46,21 +47,20 @@ import draynorChopper.util.Strategy;
  * 
  * Need to add:
  *   Need Fail-safes, in case you die or something.
- *   Make new Closest Object Method untill fixed. ----> DONE
+ *   Make new Closest Object Method untill fixed. ----> 	DONE
  *   More Antiban...
- *   Better Walking!!!!! For sure!
- *   Update Paint to support XP/H
- *   Remove the debug Log
+ *   Better Walking!!!!! For sure!	
+ *   Update Paint to support XP/H -----> 					DONE
+ *   Remove the debug Log ----->						 	DONE	
  */
 @Manifest(author = "Zeejfps", name = "Draynor Willow Chopper")
 public class DraynorChopper extends Script implements Paintable{
 	
-	private long startTime;
-	private int startExp;
+	private final int startExp = Skills.WOODCUTTING.getExperience();
+	private final Timer t = new Timer(0); //Using Not a Girl's method here...
 	
 	private BufferedImage img;
 	private final File input = new File("C:/Users/Zeejfps/powerBuddy/eclipsWorkspace/Draynor Willow Chopper/images/paint.png");
-	private final Timer t = new Timer(0); //Using Not a Girl's method here...
 	
 	public static State state  = State.NOT_CHOPPING;
 	public static GameObject tree;	
@@ -111,7 +111,7 @@ public class DraynorChopper extends Script implements Paintable{
 	public int loop() {
 		
 		for (Strategy strat : strats) {
-			log("Executing... State: " + state);
+			//log("Executing... State: " + state);
 			if (strat.isValid()) {
 				strat.execute();
 			}
@@ -136,6 +136,7 @@ public class DraynorChopper extends Script implements Paintable{
 		
 		Camera.setPitch(true);
 		
+		
 		//createStrat(new ChangeState());
 		createStrat(new CheckInv());
 		createStrat(new ChoppTree());
@@ -144,8 +145,6 @@ public class DraynorChopper extends Script implements Paintable{
 		createStrat(new WalkToTrees());
 		createStrat(new AntiBan());
 		
-		startTime = System.currentTimeMillis() / 1000;
-		startExp = Skills.WOODCUTTING.getExperience();
 		
 		log("Thank you for using Draynor Willow Chopper, by: Zeejfps!");
 	}
@@ -155,13 +154,16 @@ public class DraynorChopper extends Script implements Paintable{
 		Graphics2D g2d = (Graphics2D)g;
 		
 		//-------------------Paint---------------------
-		g2d.drawImage(img, 7, 344, null); //Paint Image
 		
-		final Font timeFont = new Font(Font.SANS_SERIF, Font.BOLD, 17);
-		g2d.setFont(timeFont);
-		g2d.drawString("" + t.toElapsedString(), 438, 377); //Once again thanks to Not a Girl xD
-		g2d.drawString(calcExp(), 374, 412);
-		g2d.drawString(Integer.toString(logsChopped), 374, 449); //410 is good for xp/h
+		if(!isContinueValid()) {
+			g2d.drawImage(img, 7, 344, null); //Paint Image
+			
+			final Font timeFont = new Font(Font.SANS_SERIF, Font.BOLD, 17);
+			g2d.setFont(timeFont);
+			g2d.drawString("" + t.toElapsedString(), 438, 377); //Once again thanks to Not a Girl xD
+			g2d.drawString(calcExp(), 374, 412);
+			g2d.drawString(Integer.toString(logsChopped), 374, 449); //410 is good for xp/h
+		}
 		//------------------End Paint-------------------
 		
 		// ----------------Mouse Drawing ----------------
@@ -245,18 +247,20 @@ public class DraynorChopper extends Script implements Paintable{
     }
 	
 	private String calcExp() {
-		long timePassed = System.currentTimeMillis()/1000 - startTime;
-		int expGained = Skills.WOODCUTTING.getExperience() - startExp;
+		double expGained = Skills.WOODCUTTING.getExperience() - startExp;
+		double secondsPassed = t.getElapsed() / 1000.0;
+		double xpPerSec = expGained / secondsPassed;
+		double xpPerHour = xpPerSec * 3600;
 		
-		if (timePassed <= 0) {
-			return Integer.toString(0);
-		}
-		
-		long xpPerSec = expGained / timePassed;
-		int xpPerHour = (int)(xpPerSec * 3600);
-		
-		return Integer.toString(xpPerHour);
+		return "" + String.format("%,.0f", xpPerHour);
 	}
+	
+	private boolean isContinueValid() {
+		
+		Component temp = Widgets.getContinue();
+		
+        return temp != null && temp.isOnScreen();
+    }
 	
 	/*
 	 * This method adds Strategies to the strats List
