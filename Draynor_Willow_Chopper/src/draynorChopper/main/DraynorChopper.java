@@ -4,7 +4,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +30,6 @@ import org.powerbuddy.script.Script;
 
 import draynorChopper.enums.State;
 import draynorChopper.strategies.AntiBan;
-//import draynorChopper.strategies.ChangeState;
 import draynorChopper.strategies.CheckInv;
 import draynorChopper.strategies.ChoppTree;
 import draynorChopper.strategies.DepositAll;
@@ -60,7 +58,6 @@ public class DraynorChopper extends Script implements Paintable{
 	private final Timer t = new Timer(0); //Using Not a Girl's method here...
 	
 	private BufferedImage img;
-	private final File input = new File("C:/Users/Zeejfps/powerBuddy/eclipsWorkspace/Draynor Willow Chopper/images/paint.png");
 	
 	public static State state  = State.NOT_CHOPPING;
 	public static GameObject tree;	
@@ -129,22 +126,19 @@ public class DraynorChopper extends Script implements Paintable{
 	@Override
 	public void onStart() {
 		try {
-			img = ImageIO.read(input);
+			img = ImageIO.read(this.getClass().getResource("/draynorChopper/paint/paint.png"));
 		} catch (IOException e) {
 			log("No Paint found...");
 		}
 		
 		Camera.setPitch(true);
 		
-		
-		//createStrat(new ChangeState());
 		createStrat(new CheckInv());
 		createStrat(new ChoppTree());
 		createStrat(new WalkToBank());
 		createStrat(new DepositAll());
 		createStrat(new WalkToTrees());
 		createStrat(new AntiBan());
-		
 		
 		log("Thank you for using Draynor Willow Chopper, by: Zeejfps!");
 	}
